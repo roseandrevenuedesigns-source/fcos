@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Annual Review</title>
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --panel: #fffaf3;
+      --panel-soft: #efe2cf;
+      --text: #2f2a25;
+      --muted: #6f6458;
+      --line: #d8c8b2;
+      --accent: #785032;
+      --accent-soft: #ecd9c3;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, #fffdf8 0, #fffdf8 18%, transparent 19%),
+        linear-gradient(180deg, #f4e8d7 0%, var(--bg) 32%, #eee3d5 100%);
+    }
+
+    .wrap {
+      width: min(1080px, calc(100% - 32px));
+      margin: 28px auto 48px;
+    }
+
+    .hero,
+    .panel,
+    .section-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 14px 28px rgba(78, 53, 29, 0.08);
+    }
+
+    .hero {
+      padding: 28px;
+      margin-bottom: 24px;
+      background:
+        linear-gradient(135deg, rgba(120, 80, 50, 0.08), rgba(255, 255, 255, 0)),
+        var(--panel);
+    }
+
+    .panel {
+      padding: 24px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+    }
+
+    p {
+      line-height: 1.6;
+    }
+
+    .hero p,
+    .panel > p,
+    .support-text,
+    .note,
+    .sub-note {
+      color: var(--muted);
+    }
+
+    .timing-setup {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .field,
+    .section-card {
+      padding: 16px;
+      background: #fffdf9;
+    }
+
+    .field {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 10px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 170px;
+      resize: vertical;
+    }
+
+    button {
+      width: auto;
+      cursor: pointer;
+      background: var(--panel-soft);
+    }
+
+    .sections {
+      display: grid;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .checks {
+      display: grid;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .check-item:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .check-item input[type="checkbox"] {
+      width: auto;
+      margin-top: 3px;
+    }
+
+    .check-item label {
+      flex: 1;
+      line-height: 1.5;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fffdf9;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th {
+      text-align: left;
+      background: #f9f1e5;
+      font-size: 0.95rem;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .inline-actions {
+      margin-top: 14px;
+      margin-bottom: 10px;
+    }
+
+    .recommended-note {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #f9f1e5;
+    }
+
+    .recommended-note strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .recommended-note button {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .recommendation-list {
+      margin-top: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .priority-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .subsection {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .sub-note {
+      margin-top: 6px;
+    }
+
+    .note {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      font-size: 0.98rem;
+    }
+
+    .workspace-nav {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .workspace-nav h3 {
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .nav-button {
+      display: inline-block;
+      width: auto;
+      text-decoration: none;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 12px 20px;
+      background: var(--panel-soft);
+      color: var(--text);
+    }
+
+    @media (max-width: 760px) {
+      .wrap {
+        width: min(100% - 20px, 1080px);
+        margin-top: 16px;
+      }
+
+      .hero,
+      .panel,
+      .section-card {
+        border-radius: 16px;
+      }
+
+      .timing-setup {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .wrap {
+        width: 100%;
+        margin: 0;
+      }
+
+      .hero,
+      .panel,
+      .section-card {
+        box-shadow: none;
+        background: #fff;
+      }
+
+      .workspace-nav {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Annual Review</h1>
+      <p>
+        This workspace helps you step back from monthly pressure, review the year as a whole, identify stability trends,
+        and carry forward a realistic containment direction into the next year.
+      </p>
+    </section>
+
+    <section class="panel">
+      <div class="timing-setup">
+        <div class="field">
+          <label for="year-select">Year</label>
+          <select id="year-select">
+            <option value="">Select year</option>
+            <option>2025</option>
+            <option>2026</option>
+            <option>2027</option>
+            <option>2028</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="annual-notes">Optional notes</label>
+          <textarea id="annual-notes" placeholder="Add context, reminders, or year-end notes"></textarea>
+        </div>
+      </div>
+
+      <div class="sections">
+        <section class="section-card">
+          <h2>Credit and Containment Trend Review</h2>
+          <div class="checks">
+            <div class="check-item">
+              <div style="width: 100%;">
+                <label for="payment-continuity">Overall payment continuity across the year</label>
+                <select id="payment-continuity">
+                  <option value="">Select status</option>
+                  <option>Improved</option>
+                  <option>Stayed consistent</option>
+                  <option>Declined</option>
+                  <option>Mixed / uneven</option>
+                  <option>Not sure</option>
+                </select>
+              </div>
+            </div>
+            <div class="check-item">
+              <div style="width: 100%;">
+                <label for="income-sufficiency">Income sufficiency across the year</label>
+                <select id="income-sufficiency">
+                  <option value="">Select status</option>
+                  <option>Improved</option>
+                  <option>Stayed stable</option>
+                  <option>Tightened</option>
+                  <option>Mixed / uneven</option>
+                  <option>Not sure</option>
+                </select>
+              </div>
+            </div>
+            <div class="check-item">
+              <div style="width: 100%;">
+                <label for="buffer-position">Emergency buffer position across the year</label>
+                <select id="buffer-position">
+                  <option value="">Select status</option>
+                  <option>Increased</option>
+                  <option>Decreased</option>
+                  <option>Stayed the same</option>
+                  <option>No buffer in place</option>
+                  <option>Not sure</option>
+                </select>
+              </div>
+            </div>
+            <div class="check-item">
+              <div style="width: 100%;">
+                <label for="score-direction">Score direction across the year</label>
+                <select id="score-direction">
+                  <option value="">Select status</option>
+                  <option>Mostly upward</option>
+                  <option>Mostly stable</option>
+                  <option>Mostly downward</option>
+                  <option>Mixed / inconsistent</option>
+                  <option>Not sure</option>
+                </select>
+              </div>
+            </div>
+            <div class="check-item">
+              <div style="width: 100%;">
+                <label for="containment-stability">Containment stability across the year</label>
+                <select id="containment-stability">
+                  <option value="">Select status</option>
+                  <option>Strengthened</option>
+                  <option>Held steady</option>
+                  <option>Became more fragile</option>
+                  <option>Mixed / uneven</option>
+                  <option>Not sure</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card">
+          <h2>Year-End Credit Score Snapshot</h2>
+          <p class="support-text">
+            This snapshot is here to help compare where the year started and where it ended. Score movement may lag behind
+            real-life stability progress, and different scoring models may move differently across the same year.
+          </p>
+          <p class="sub-note">
+            Use your Monthly Score Log as the source for the year-start and year-end values entered here.
+          </p>
+          <div class="inline-actions">
+            <button type="button">Use Monthly Score Log values</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Score Type</th>
+                  <th>Experian</th>
+                  <th>TransUnion</th>
+                  <th>Equifax</th>
+                  <th>Source</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>FICO Starting</td>
+                  <td><input type="text" aria-label="FICO Starting Experian"></td>
+                  <td><input type="text" aria-label="FICO Starting TransUnion"></td>
+                  <td><input type="text" aria-label="FICO Starting Equifax"></td>
+                  <td><input type="text" aria-label="FICO Starting Source"></td>
+                  <td><textarea aria-label="FICO Starting Notes" style="min-height: 70px;"></textarea></td>
+                </tr>
+                <tr>
+                  <td>FICO Ending</td>
+                  <td><input type="text" aria-label="FICO Ending Experian"></td>
+                  <td><input type="text" aria-label="FICO Ending TransUnion"></td>
+                  <td><input type="text" aria-label="FICO Ending Equifax"></td>
+                  <td><input type="text" aria-label="FICO Ending Source"></td>
+                  <td><textarea aria-label="FICO Ending Notes" style="min-height: 70px;"></textarea></td>
+                </tr>
+                <tr>
+                  <td>Vantage Starting</td>
+                  <td><input type="text" aria-label="Vantage Starting Experian"></td>
+                  <td><input type="text" aria-label="Vantage Starting TransUnion"></td>
+                  <td><input type="text" aria-label="Vantage Starting Equifax"></td>
+                  <td><input type="text" aria-label="Vantage Starting Source"></td>
+                  <td><textarea aria-label="Vantage Starting Notes" style="min-height: 70px;"></textarea></td>
+                </tr>
+                <tr>
+                  <td>Vantage Ending</td>
+                  <td><input type="text" aria-label="Vantage Ending Experian"></td>
+                  <td><input type="text" aria-label="Vantage Ending TransUnion"></td>
+                  <td><input type="text" aria-label="Vantage Ending Equifax"></td>
+                  <td><input type="text" aria-label="Vantage Ending Source"></td>
+                  <td><textarea aria-label="Vantage Ending Notes" style="min-height: 70px;"></textarea></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section-card">
+          <h2>What Changed This Year</h2>
+          <p class="support-text">
+            Brief notes are enough here. List what changed, not everything that happened, and focus on what actually affected stability.
+          </p>
+          <textarea placeholder="Short entries count. What changed this year in your household, income, obligations, credit standing, or support systems that affected financial containment?"></textarea>
+        </section>
+
+        <section class="section-card">
+          <h2>What Helped Hold Things Together</h2>
+          <p class="support-text">
+            Keep this practical and light. A few bullet-style notes about what helped are enough.
+          </p>
+          <textarea placeholder="Short entries count. What systems, habits, protections, or support structures helped maintain stability this year?"></textarea>
+        </section>
+
+        <section class="section-card">
+          <h2>What Still Needs Attention</h2>
+          <p class="support-text">
+            You do not need to write a full review. Brief notes about what stayed fragile, delayed, or unfinished are enough.
+          </p>
+          <textarea placeholder="List what still affected stability by year-end, even if it was only part of the year."></textarea>
+        </section>
+
+        <section class="section-card">
+          <h2>Next-Year Stability Direction</h2>
+          <p class="support-text">
+            The goal is not to fix everything at once. Choose the direction that best reflects what would create the most
+            stability next, based on the year as it was actually lived.
+          </p>
+          <p class="sub-note">
+            Let this direction reflect the area that would create the most stability next, not every area that still needs work.
+          </p>
+          <div class="recommended-note">
+            <strong>Recommended direction</strong>
+            <button type="button" id="generate-recommendation-btn">Generate Recommendation</button>
+            <div id="recommended-direction-text">
+              Choose the direction that matches the biggest pressure point from this year.
+            </div>
+          </div>
+          <p class="sub-note">
+            Use the recommended directions as guidance, not rules. Select the direction or directions that feel most true for your year, then use the priority fields below to decide what comes first, what comes next, and what can wait.
+          </p>
+          <div class="checks">
+            <div class="check-item">
+              <input type="checkbox" id="maintain-containment">
+              <label for="maintain-containment">Maintain containment</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="restore-sufficiency">
+              <label for="restore-sufficiency">Restore sufficiency</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="bring-current">
+              <label for="bring-current">Bring accounts current</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="strengthen-buffers">
+              <label for="strengthen-buffers">Strengthen buffers</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="reduce-sequencing">
+              <label for="reduce-sequencing">Reduce sequencing pressure</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="simplify-obligations">
+              <label for="simplify-obligations">Simplify obligations</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="prepare-transition">
+              <label for="prepare-transition">Prepare for transition period</label>
+            </div>
+          </div>
+
+          <div class="subsection">
+            <h3>Priority Goals for Next Year</h3>
+            <p class="support-text">
+              You do not need to pursue every goal at once. Use priority tiers to separate what needs stability first from what can wait.
+            </p>
+            <div class="priority-grid">
+              <div>
+                <label for="primary-priority">Primary priority</label>
+                <input type="text" id="primary-priority" placeholder="What most needs stability first">
+              </div>
+              <div>
+                <label for="secondary-priority">Secondary priority</label>
+                <input type="text" id="secondary-priority" placeholder="What comes next once the primary pressure point is steadier">
+              </div>
+              <div>
+                <label for="later-priority">Later / if capacity allows</label>
+                <input type="text" id="later-priority" placeholder="What can wait until there is more room">
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <p class="note">
+        Annual progress does not have to look dramatic to be real. Stability often builds through continuity, reduced fragility,
+        and fewer disruptions over time.
+      </p>
+
+      <section class="workspace-nav" aria-label="Workspace Navigation">
+        <h3>Workspace Navigation</h3>
+        <div class="nav-links">
+          <a class="nav-button" href="quarterly-review.html">Back</a>
+          <a class="nav-button" href="index.html">Next</a>
+          <a class="nav-button" href="index.html">Return to FCOS Home</a>
+          <button type="button" id="archive-btn">Save This Review for Records</button>
+          <button type="button" id="nav-reset-btn">Reset This Workspace</button>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const recommendationButton = document.getElementById("generate-recommendation-btn");
+    const recommendationText = document.getElementById("recommended-direction-text");
+    const annualResetButton = document.getElementById("nav-reset-btn");
+    const annualArchiveButton = document.getElementById("archive-btn");
+
+    function valueOf(id) {
+      const element = document.getElementById(id);
+      return element ? element.value : "";
+    }
+
+    function generateRecommendation() {
+      const paymentContinuity = valueOf("payment-continuity");
+      const incomeSufficiency = valueOf("income-sufficiency");
+      const bufferPosition = valueOf("buffer-position");
+      const scoreDirection = valueOf("score-direction");
+      const containmentStability = valueOf("containment-stability");
+
+      const weights = {
+        "Maintain containment": 0,
+        "Restore sufficiency": 0,
+        "Bring accounts current": 0,
+        "Strengthen buffers": 0,
+        "Reduce sequencing pressure": 0,
+        "Simplify obligations": 0,
+        "Prepare for transition period": 0
+      };
+
+      let instabilitySignals = 0;
+      const reasons = [];
+
+      if (paymentContinuity === "Declined") {
+        weights["Bring accounts current"] += 6;
+        weights["Maintain containment"] += 5;
+        weights["Prepare for transition period"] += 2;
+        instabilitySignals += 1;
+        reasons.push("payment continuity appears to have declined");
+      } else if (paymentContinuity === "Mixed / uneven") {
+        weights["Reduce sequencing pressure"] += 5;
+        weights["Simplify obligations"] += 3;
+        weights["Maintain containment"] += 2;
+        instabilitySignals += 1;
+        reasons.push("payment continuity appears uneven");
+      } else if (paymentContinuity === "Improved") {
+        weights["Strengthen buffers"] += 2;
+        weights["Maintain containment"] += 2;
+      } else if (paymentContinuity === "Stayed consistent") {
+        weights["Maintain containment"] += 3;
+        weights["Strengthen buffers"] += 2;
+      }
+
+      if (incomeSufficiency === "Tightened") {
+        weights["Restore sufficiency"] += 7;
+        weights["Maintain containment"] += 2;
+        weights["Prepare for transition period"] += 2;
+        instabilitySignals += 1;
+        reasons.push("income appears to have tightened");
+      } else if (incomeSufficiency === "Mixed / uneven") {
+        weights["Restore sufficiency"] += 4;
+        weights["Reduce sequencing pressure"] += 2;
+        instabilitySignals += 1;
+        reasons.push("income sufficiency appears uneven");
+      } else if (incomeSufficiency === "Improved") {
+        weights["Strengthen buffers"] += 3;
+        weights["Maintain containment"] += 1;
+      } else if (incomeSufficiency === "Stayed stable") {
+        weights["Maintain containment"] += 2;
+        weights["Strengthen buffers"] += 2;
+      }
+
+      if (bufferPosition === "Decreased") {
+        weights["Strengthen buffers"] += 6;
+        weights["Maintain containment"] += 1;
+        instabilitySignals += 1;
+        reasons.push("cushion appears to have decreased");
+      } else if (bufferPosition === "No buffer in place") {
+        weights["Strengthen buffers"] += 7;
+        weights["Prepare for transition period"] += 1;
+        instabilitySignals += 1;
+        reasons.push("buffer coverage appears limited");
+      } else if (bufferPosition === "Stayed the same") {
+        weights["Maintain containment"] += 1;
+      } else if (bufferPosition === "Increased") {
+        weights["Maintain containment"] += 2;
+        weights["Strengthen buffers"] += 2;
+      }
+
+      if (scoreDirection === "Mostly downward") {
+        weights["Bring accounts current"] += 2;
+        weights["Maintain containment"] += 2;
+        instabilitySignals += 1;
+      } else if (scoreDirection === "Mixed / inconsistent") {
+        weights["Reduce sequencing pressure"] += 2;
+        weights["Simplify obligations"] += 1;
+      } else if (scoreDirection === "Mostly upward" || scoreDirection === "Mostly stable") {
+        weights["Maintain containment"] += 1;
+        weights["Strengthen buffers"] += 1;
+      }
+
+      if (containmentStability === "Became more fragile") {
+        weights["Maintain containment"] += 7;
+        weights["Prepare for transition period"] += 3;
+        weights["Bring accounts current"] += 2;
+        instabilitySignals += 1;
+        reasons.push("containment appears to have become more fragile");
+      } else if (containmentStability === "Mixed / uneven") {
+        weights["Reduce sequencing pressure"] += 4;
+        weights["Simplify obligations"] += 3;
+        weights["Maintain containment"] += 2;
+        instabilitySignals += 1;
+        reasons.push("containment stability appears uneven");
+      } else if (containmentStability === "Strengthened") {
+        weights["Strengthen buffers"] += 3;
+        weights["Maintain containment"] += 2;
+      } else if (containmentStability === "Held steady") {
+        weights["Maintain containment"] += 3;
+        weights["Strengthen buffers"] += 1;
+      }
+
+      if (instabilitySignals >= 3) {
+        weights["Prepare for transition period"] += 5;
+        weights["Maintain containment"] += 2;
+      }
+
+      if (
+        paymentContinuity === "Mixed / uneven" ||
+        containmentStability === "Mixed / uneven" ||
+        scoreDirection === "Mixed / inconsistent"
+      ) {
+        weights["Simplify obligations"] += 2;
+      }
+
+      const ranked = Object.entries(weights)
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .slice(0, 3)
+        .map(([label]) => label);
+
+      const primary = ranked[0];
+      const secondary = ranked[1];
+      const third = ranked[2];
+
+      let explanation = "These directions may create the most stability next based on the overall pattern shown in the review.";
+
+      if (reasons.length === 1) {
+        explanation = `${reasons[0].charAt(0).toUpperCase() + reasons[0].slice(1)}, so these directions may create the most stability next.`;
+      } else if (reasons.length === 2) {
+        explanation = `${reasons[0].charAt(0).toUpperCase() + reasons[0].slice(1)} and ${reasons[1]}, so these directions may create the most stability next.`;
+      } else if (reasons.length >= 3) {
+        explanation = `${reasons[0].charAt(0).toUpperCase() + reasons[0].slice(1)}, ${reasons[1]}, and ${reasons[2]}, so these directions may create the most stability next.`;
+      }
+
+      recommendationText.innerHTML = `
+        <div class="recommendation-list">
+          <div><strong>Primary direction:</strong> ${primary}</div>
+          <div><strong>Secondary direction:</strong> ${secondary}</div>
+          <div><strong>Third supporting direction:</strong> ${third}</div>
+        </div>
+        <p class="sub-note">${explanation}</p>
+      `;
+    }
+
+    function resetAnnualWorkspace() {
+      document.querySelectorAll("input, select, textarea").forEach((field) => {
+        if (field.type === "checkbox") {
+          field.checked = false;
+        } else if (field.tagName === "SELECT") {
+          field.selectedIndex = 0;
+        } else {
+          field.value = "";
+        }
+      });
+
+      recommendationText.innerHTML = "Choose the direction that matches the biggest pressure point from this year.";
+    }
+
+    recommendationButton.addEventListener("click", generateRecommendation);
+    annualArchiveButton.addEventListener("click", () => window.print());
+    annualResetButton.addEventListener("click", resetAnnualWorkspace);
+  </script>
+</body>
+</html>

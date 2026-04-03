@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quarterly Review</title>
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --panel: #fffaf3;
+      --panel-soft: #efe2cf;
+      --text: #2f2a25;
+      --muted: #6f6458;
+      --line: #d8c8b2;
+      --accent: #785032;
+      --accent-soft: #ecd9c3;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, #fffdf8 0, #fffdf8 18%, transparent 19%),
+        linear-gradient(180deg, #f4e8d7 0%, var(--bg) 32%, #eee3d5 100%);
+    }
+
+    .wrap {
+      width: min(1080px, calc(100% - 32px));
+      margin: 28px auto 48px;
+    }
+
+    .hero,
+    .panel,
+    .section-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 14px 28px rgba(78, 53, 29, 0.08);
+    }
+
+    .hero {
+      padding: 28px;
+      margin-bottom: 24px;
+      background:
+        linear-gradient(135deg, rgba(120, 80, 50, 0.08), rgba(255, 255, 255, 0)),
+        var(--panel);
+    }
+
+    .panel {
+      padding: 24px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+    }
+
+    p {
+      line-height: 1.6;
+    }
+
+    .hero p,
+    .panel > p,
+    .support-text,
+    .note {
+      color: var(--muted);
+    }
+
+    .timing-setup {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .field,
+    .section-card {
+      padding: 16px;
+      background: #fffdf9;
+    }
+
+    .field {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 10px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .sections {
+      display: grid;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .checks {
+      display: grid;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .check-item:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .check-item input[type="checkbox"] {
+      width: auto;
+      margin-top: 3px;
+    }
+
+    .check-item label {
+      flex: 1;
+      line-height: 1.5;
+    }
+
+    .note {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      font-size: 0.98rem;
+    }
+
+    .workspace-nav {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .workspace-nav h3 {
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .nav-button,
+    .nav-links button {
+      display: inline-block;
+      width: auto;
+      text-decoration: none;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 12px 20px;
+      background: var(--panel-soft);
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+    }
+
+    @media (max-width: 760px) {
+      .wrap {
+        width: min(100% - 20px, 1080px);
+        margin-top: 16px;
+      }
+
+      .hero,
+      .panel,
+      .section-card {
+        border-radius: 16px;
+      }
+
+      .timing-setup {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .wrap {
+        width: 100%;
+        margin: 0;
+      }
+
+      .hero,
+      .panel,
+      .section-card {
+        box-shadow: none;
+        background: #fff;
+      }
+
+      .workspace-nav {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Quarterly Review</h1>
+      <p>
+        This workspace helps identify containment shifts, continuity patterns, and stabilization direction across the last 90 days.
+      </p>
+    </section>
+
+    <section class="panel">
+      <div class="timing-setup">
+        <div class="field">
+          <label for="quarter-select">Quarter</label>
+          <select id="quarter-select">
+            <option value="">Select quarter</option>
+            <option>Q1</option>
+            <option>Q2</option>
+            <option>Q3</option>
+            <option>Q4</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="year-select">Year</label>
+          <select id="year-select">
+            <option value="">Select year</option>
+            <option>2025</option>
+            <option>2026</option>
+            <option>2027</option>
+            <option>2028</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="quarter-notes">Optional notes</label>
+          <textarea id="quarter-notes" placeholder="Add context, reminders, or review notes"></textarea>
+        </div>
+      </div>
+
+      <div class="sections">
+        <section class="section-card">
+          <h2>Containment Stability Check</h2>
+          <div class="checks">
+            <div class="check-item">
+              <input type="checkbox" id="housing-held">
+              <label for="housing-held">Housing stability held this quarter</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="utilities-current">
+              <label for="utilities-current">Utilities remained current</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="transport-reliable">
+              <label for="transport-reliable">Transportation remained reliable</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="income-predictability">
+              <label for="income-predictability">Income predictability held</label>
+            </div>
+            <div class="check-item">
+              <label for="income-sufficiency">Income sufficiency direction</label>
+              <select id="income-sufficiency">
+                <option value="">Select direction</option>
+                <option>Increased</option>
+                <option>Decreased</option>
+                <option>Stable at current level</option>
+                <option>Not sure</option>
+              </select>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="supports-stable">
+              <label for="supports-stable">Support structures remained stable</label>
+            </div>
+            <div class="check-item">
+              <label for="buffer-changed">Emergency buffer direction</label>
+              <select id="buffer-changed">
+                <option value="">Select direction</option>
+                <option>Increased</option>
+                <option>Decreased</option>
+                <option>Stayed the same</option>
+                <option>No buffer in place</option>
+                <option>Not sure</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card">
+          <h2>Payment Continuity Check</h2>
+          <div class="checks">
+            <div class="check-item">
+              <input type="checkbox" id="minimums-continuous">
+              <label for="minimums-continuous">Minimum payments remained continuous</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="protections-active">
+              <label for="protections-active">Protective arrangements stayed active where needed</label>
+            </div>
+            <div class="check-item">
+              <div style="width: 100%;">
+                <label for="fell-behind">Any accounts fell behind?</label>
+                <select id="fell-behind">
+                  <option value="">Select option</option>
+                  <option>Yes</option>
+                  <option>No</option>
+                </select>
+                <label for="fell-behind-accounts" style="margin-top: 8px; display: block;">Accounts affected (if any)</label>
+                <textarea id="fell-behind-accounts" placeholder="Optional notes"></textarea>
+              </div>
+            </div>
+            <div class="check-item">
+              <div style="width: 100%;">
+                <label for="returned-current">Any accounts returned to current status?</label>
+                <select id="returned-current">
+                  <option value="">Select option</option>
+                  <option>Yes</option>
+                  <option>No</option>
+                </select>
+                <label for="returned-current-accounts" style="margin-top: 8px; display: block;">Accounts affected (if any)</label>
+                <textarea id="returned-current-accounts" placeholder="Optional notes"></textarea>
+              </div>
+            </div>
+            <div class="check-item">
+              <label for="sequencing-pressure">Sequencing pressure direction</label>
+              <select id="sequencing-pressure">
+                <option value="">Select change</option>
+                <option>Increased</option>
+                <option>Decreased</option>
+                <option>Stayed the same</option>
+                <option>Not sure</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card">
+          <h2>Credit Pattern Awareness</h2>
+          <div class="checks">
+            <div class="check-item">
+              <input type="checkbox" id="scores-upward">
+              <label for="scores-upward">Scores trended upward</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="scores-downward">
+              <label for="scores-downward">Scores trended downward</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="scores-stable">
+              <label for="scores-stable">Scores remained stable</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="scores-fluctuated">
+              <label for="scores-fluctuated">Scores fluctuated but continuity held</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="bureau-difference">
+              <label for="bureau-difference">Score movement differed between bureaus</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="model-difference">
+              <label for="model-difference">Score movement differed between scoring models</label>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card">
+          <h2>Next-Quarter Containment Direction</h2>
+          <p class="support-text">
+            Choose the next-quarter direction based on what created the most pressure this quarter. If core bills stayed covered but flexibility stayed tight, focus on strengthening buffers. If accounts slipped or remained behind, focus on bringing accounts current. If income covered the month but not consistently beyond it, focus on restoring sufficiency. If the system held but still felt fragile, focus on maintaining containment or reducing sequencing pressure. You do not need to fix everything at once. Containment goals can be sequenced over time.
+          </p>
+          <div class="checks">
+            <div class="check-item">
+              <input type="checkbox" id="focus-maintain">
+              <label for="focus-maintain">Maintain containment</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="focus-sufficiency">
+              <label for="focus-sufficiency">Restore sufficiency</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="focus-current">
+              <label for="focus-current">Bring accounts current</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="focus-buffers">
+              <label for="focus-buffers">Strengthen buffers</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="focus-sequencing">
+              <label for="focus-sequencing">Reduce sequencing pressure</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="focus-transition">
+              <label for="focus-transition">Prepare for transition period</label>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <p class="note">
+        Quarterly changes often appear in structure before they appear in scores. Containment progress is still progress. Stability is directional, not instant.
+      </p>
+
+      <section class="workspace-nav" aria-label="Workspace Navigation">
+        <h3>Workspace Navigation</h3>
+        <div class="nav-links">
+          <a class="nav-button" href="monthly-credit-snapshot.html">Back</a>
+          <a class="nav-button" href="annual-review.html">Next</a>
+          <a class="nav-button" href="index.html">Return to FCOS Home</a>
+          <button type="button" id="archive-btn">Save This Review for Records</button>
+          <button type="button" id="nav-reset-btn">Reset This Workspace</button>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const quarterlyResetButton = document.getElementById("nav-reset-btn");
+    const quarterlyArchiveButton = document.getElementById("archive-btn");
+
+    function resetQuarterlyWorkspace() {
+      document.querySelectorAll("input, select, textarea").forEach((field) => {
+        if (field.type === "checkbox") {
+          field.checked = false;
+        } else if (field.tagName === "SELECT") {
+          field.selectedIndex = 0;
+        } else {
+          field.value = "";
+        }
+      });
+    }
+
+    quarterlyResetButton.addEventListener("click", resetQuarterlyWorkspace);
+    quarterlyArchiveButton.addEventListener("click", () => window.print());
+  </script>
+</body>
+</html>
