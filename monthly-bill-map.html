@@ -5,18 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Monthly Bill Map</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap');
+
     :root {
-      --bg: #f6f1e8;
-      --panel: #fffaf3;
-      --panel-soft: #efe2cf;
-      --text: #2f2a25;
-      --muted: #6f6458;
-      --line: #d8c8b2;
-      --accent: #785032;
-      --accent-soft: #ecd9c3;
-      --green: #3a6547;
-      --gold: #8d6529;
-      --rose: #8e4b4b;
+      --bg: #F6F3EF;
+      --panel: #FCFAF8;
+      --panel-soft: #E8DAD3;
+      --text: #3E3A38;
+      --muted: #7A6F68;
+      --line: rgba(122, 111, 104, 0.24);
+      --accent: #C28A73;
+      --accent-soft: #E8DAD3;
+      --green: #7A6F68;
+      --gold: #C28A73;
+      --rose: #9A8175;
     }
 
     * {
@@ -25,11 +27,9 @@
 
     body {
       margin: 0;
-      font-family: Georgia, "Times New Roman", serif;
+      font-family: "Inter", sans-serif;
       color: var(--text);
-      background:
-        radial-gradient(circle at top left, #fffdf8 0, #fffdf8 18%, transparent 19%),
-        linear-gradient(180deg, #f4e8d7 0%, var(--bg) 32%, #eee3d5 100%);
+      background: var(--bg);
     }
 
     .wrap {
@@ -43,15 +43,13 @@
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 18px;
-      box-shadow: 0 14px 28px rgba(78, 53, 29, 0.08);
+      box-shadow: 0 8px 22px rgba(62, 58, 56, 0.05);
     }
 
     .hero {
       padding: 28px;
       margin-bottom: 24px;
-      background:
-        linear-gradient(135deg, rgba(120, 80, 50, 0.08), rgba(255, 255, 255, 0)),
-        var(--panel);
+      background: var(--panel);
     }
 
     h1,
@@ -62,7 +60,15 @@
     }
 
     h1 {
+      font-family: "Cormorant Garamond", serif;
       font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    h2,
+    h3 {
+      font-family: "Libre Baskerville", serif;
     }
 
     p {
@@ -89,7 +95,7 @@
       padding: 16px;
       border: 1px solid var(--line);
       border-radius: 14px;
-      background: #fffdf9;
+      background: var(--panel);
     }
 
     .timing-field label {
@@ -103,7 +109,7 @@
       margin-top: 18px;
       border: 1px solid var(--line);
       border-radius: 14px;
-      background: #fffdf9;
+      background: var(--panel);
     }
 
     .subsection-title {
@@ -126,7 +132,9 @@
 
     th {
       text-align: left;
-      background: #f9f1e5;
+      background: var(--panel-soft);
+      font-family: "Inter", sans-serif;
+      font-weight: 600;
       font-size: 0.95rem;
     }
 
@@ -165,15 +173,17 @@
     }
 
     button {
-      border: 0;
+      border: 1px solid var(--line);
       border-radius: 999px;
       padding: 12px 20px;
+      font-family: "Inter", sans-serif;
+      font-weight: 500;
       cursor: pointer;
     }
 
     .primary {
       background: var(--accent);
-      color: #fffaf4;
+      color: #fffaf7;
     }
 
     .secondary {
@@ -182,8 +192,8 @@
     }
 
     .danger {
-      background: #f5e1df;
-      color: #6f2d2d;
+      background: var(--panel-soft);
+      color: var(--text);
       padding: 8px 12px;
     }
 
@@ -489,13 +499,18 @@
       <p>
         Use paycheck entries to map actual deposit events for the cycle. These are timing supports for execution, not bills or obligations.
       </p>
+      <p class="note">
+        Enter only the portion of this paycheck being deposited into the bill account for this cycle.
+      </p>
 
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
               <th>Paycheck label</th>
+              <th>Bill account balance before this paycheck deposits</th>
               <th>Paycheck date</th>
+              <th>Bill account deposit from this paycheck</th>
               <th>Expected deposit account</th>
               <th>Notes</th>
               <th>Row</th>
@@ -689,7 +704,9 @@
           <option>Check 3 / Other</option>
         </select>
       </td>
+      <td><input type="number" data-paycheck-field="startingBalance" min="0" step="0.01" placeholder="0.00"></td>
       <td><input type="date" data-paycheck-field="date"></td>
+      <td><input type="number" data-paycheck-field="amount" min="0" step="0.01" placeholder="0.00"></td>
       <td><input type="text" data-paycheck-field="account" placeholder="Main checking, payroll card"></td>
       <td><textarea data-paycheck-field="notes" placeholder="Optional notes"></textarea></td>
       <td><button type="button" class="danger remove-paycheck-row-btn">Remove</button></td>
@@ -697,6 +714,8 @@
   </template>
 
   <script>
+    const STORAGE_KEY = "pivot-monthly-bill-map-workspace";
+    let suppressAutoSave = false;
     const rowsBody = document.getElementById("bill-rows");
     const rowTemplate = document.getElementById("row-template");
     const paycheckRowsBody = document.getElementById("paycheck-rows");
@@ -730,6 +749,56 @@
       }
     };
 
+    function saveWorkspaceState() {
+      if (suppressAutoSave) return;
+
+      try {
+        const state = {
+          mappedMonth: mappedMonthSelect.value,
+          mappedYear: mappedYearSelect.value,
+          billRows: readRows(),
+          paycheckRows: readPaycheckRows()
+        };
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (error) {
+        console.error("Unable to save workspace state.", error);
+      }
+    }
+
+    function restoreWorkspaceState() {
+      try {
+        const rawState = window.localStorage.getItem(STORAGE_KEY);
+        if (!rawState) return false;
+
+        const state = JSON.parse(rawState);
+        suppressAutoSave = true;
+        mappedMonthSelect.value = state.mappedMonth || "";
+        mappedYearSelect.value = state.mappedYear || "";
+
+        rowsBody.innerHTML = "";
+        paycheckRowsBody.innerHTML = "";
+
+        if (Array.isArray(state.paycheckRows) && state.paycheckRows.length) {
+          state.paycheckRows.forEach((row) => addPaycheckRow(row));
+        } else {
+          addPaycheckRow();
+        }
+
+        if (Array.isArray(state.billRows) && state.billRows.length) {
+          state.billRows.forEach((row) => addRow(row));
+        } else {
+          addRow();
+        }
+
+        suppressAutoSave = false;
+        return true;
+      } catch (error) {
+        suppressAutoSave = false;
+        console.error("Unable to restore workspace state.", error);
+        return false;
+      }
+    }
+
     function addRow(data = {}) {
       const fragment = rowTemplate.content.cloneNode(true);
       const row = fragment.querySelector("tr");
@@ -744,9 +813,11 @@
       row.querySelector(".remove-row-btn").addEventListener("click", () => {
         row.remove();
         if (!rowsBody.children.length) addRow();
+        saveWorkspaceState();
       });
 
       rowsBody.appendChild(row);
+      saveWorkspaceState();
     }
 
     function addPaycheckRow(data = {}) {
@@ -763,9 +834,11 @@
       row.querySelector(".remove-paycheck-row-btn").addEventListener("click", () => {
         row.remove();
         if (!paycheckRowsBody.children.length) addPaycheckRow();
+        saveWorkspaceState();
       });
 
       paycheckRowsBody.appendChild(row);
+      saveWorkspaceState();
     }
 
     function setList(list, items, fallback) {
@@ -859,6 +932,42 @@
       return "Paycheck window";
     }
 
+    function parseMoney(value) {
+      const number = Number(value || 0);
+      return Number.isFinite(number) ? number : 0;
+    }
+
+    function determineCoverageStatus(remainingBalance) {
+      if (remainingBalance < 0) return "Not fully covered";
+      if (remainingBalance <= 50) return "Tight but covered";
+      return "Covered";
+    }
+
+    function buildCoverageSummaries(rows, paycheckEntries) {
+      const labelOrder = ["Check 1", "Check 2", "Check 3 / Other"];
+      const summaries = {};
+
+      labelOrder.forEach((label) => {
+        const paycheckEntry = paycheckEntries.find((entry) => entry.label === label) || {};
+        const startingBalance = parseMoney(paycheckEntry.startingBalance);
+        const paycheckAmount = parseMoney(paycheckEntry.amount);
+        const assignedRows = rows.filter((row) => row.paycheckWindow === label);
+        const assignedTotal = assignedRows.reduce((total, row) => total + parseMoney(row.plannedPayment), 0);
+        const availableFunds = startingBalance + paycheckAmount;
+        const remainingBalance = availableFunds - assignedTotal;
+
+        summaries[label] = {
+          startingBalance,
+          availableFunds,
+          assignedTotal,
+          remainingBalance,
+          status: determineCoverageStatus(remainingBalance)
+        };
+      });
+
+      return summaries;
+    }
+
     function paycheckInterpretation(rows, paycheckEntry) {
       const anchorSource = paycheckEntry?.date;
       const label = paycheckEntry?.label || "";
@@ -921,20 +1030,32 @@
     }
 
     function renderPaycheckView(rows, paycheckEntries) {
+      const coverageSummaries = buildCoverageSummaries(rows, paycheckEntries);
+
       Object.entries(paycheckTargets).forEach(([label, target]) => {
         const groupedRows = rows.filter((row) => row.paycheckWindow === label);
         const paycheckEntry = paycheckEntries.find((entry) => entry.label === label);
         const prefixParts = [];
+        const coverage = coverageSummaries[label];
 
         if (paycheckEntry?.account) {
           prefixParts.push(`Deposit account: ${paycheckEntry.account}`);
+        }
+
+        if (paycheckEntry?.startingBalance) {
+          prefixParts.push(`Bill account balance before deposit: ${formatMoney(paycheckEntry.startingBalance)}`);
+        }
+
+        if (paycheckEntry?.amount) {
+          prefixParts.push(`Bill account deposit from this paycheck: ${formatMoney(paycheckEntry.amount)}`);
         }
 
         if (paycheckEntry?.notes) {
           prefixParts.push(paycheckEntry.notes);
         }
 
-        target.interpretation.textContent = paycheckInterpretation(groupedRows, paycheckEntry);
+        const coverageText = `Available funds: ${formatMoney(coverage.availableFunds)}. Total assigned bill amount: ${formatMoney(coverage.assignedTotal)}. Remaining balance after assigned bills: ${formatMoney(coverage.remainingBalance)}. Status: ${coverage.status}.`;
+        target.interpretation.textContent = `${coverageText} ${paycheckInterpretation(groupedRows, paycheckEntry)}`;
         if (prefixParts.length) {
           target.interpretation.textContent += ` ${prefixParts.join(". ")}.`;
         }
@@ -1199,6 +1320,14 @@
     }
 
     function resetAll() {
+      suppressAutoSave = true;
+
+      try {
+        window.localStorage.removeItem(STORAGE_KEY);
+      } catch (error) {
+        console.error("Unable to clear workspace state.", error);
+      }
+
       rowsBody.innerHTML = "";
       paycheckRowsBody.innerHTML = "";
       addRow();
@@ -1212,7 +1341,15 @@
       calendarBody.innerHTML = "";
       mappedMonthSelect.value = "";
       mappedYearSelect.value = "";
+      suppressAutoSave = false;
     }
+
+    rowsBody.addEventListener("input", saveWorkspaceState);
+    rowsBody.addEventListener("change", saveWorkspaceState);
+    paycheckRowsBody.addEventListener("input", saveWorkspaceState);
+    paycheckRowsBody.addEventListener("change", saveWorkspaceState);
+    mappedMonthSelect.addEventListener("change", saveWorkspaceState);
+    mappedYearSelect.addEventListener("change", saveWorkspaceState);
 
     document.getElementById("add-row-btn").addEventListener("click", () => addRow());
     document.getElementById("add-paycheck-row-btn").addEventListener("click", () => addPaycheckRow());
@@ -1221,9 +1358,11 @@
     document.getElementById("archive-btn").addEventListener("click", () => window.print());
     document.getElementById("nav-reset-btn").addEventListener("click", resetAll);
 
-    addPaycheckRow();
-    addRow();
-    addRow();
+    if (!restoreWorkspaceState()) {
+      addPaycheckRow();
+      addRow();
+      addRow();
+    }
   </script>
 </body>
 </html>

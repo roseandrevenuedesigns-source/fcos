@@ -5,15 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Annual Review</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap');
+
     :root {
-      --bg: #f6f1e8;
-      --panel: #fffaf3;
-      --panel-soft: #efe2cf;
-      --text: #2f2a25;
-      --muted: #6f6458;
-      --line: #d8c8b2;
-      --accent: #785032;
-      --accent-soft: #ecd9c3;
+      --bg: #F6F3EF;
+      --panel: #FCFAF8;
+      --panel-soft: #E8DAD3;
+      --text: #3E3A38;
+      --muted: #7A6F68;
+      --line: rgba(122, 111, 104, 0.24);
+      --accent: #C28A73;
+      --accent-soft: #E8DAD3;
     }
 
     * {
@@ -22,11 +24,9 @@
 
     body {
       margin: 0;
-      font-family: Georgia, "Times New Roman", serif;
+      font-family: "Inter", sans-serif;
       color: var(--text);
-      background:
-        radial-gradient(circle at top left, #fffdf8 0, #fffdf8 18%, transparent 19%),
-        linear-gradient(180deg, #f4e8d7 0%, var(--bg) 32%, #eee3d5 100%);
+      background: var(--bg);
     }
 
     .wrap {
@@ -40,15 +40,13 @@
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 18px;
-      box-shadow: 0 14px 28px rgba(78, 53, 29, 0.08);
+      box-shadow: 0 8px 22px rgba(62, 58, 56, 0.05);
     }
 
     .hero {
       padding: 28px;
       margin-bottom: 24px;
-      background:
-        linear-gradient(135deg, rgba(120, 80, 50, 0.08), rgba(255, 255, 255, 0)),
-        var(--panel);
+      background: var(--panel);
     }
 
     .panel {
@@ -70,7 +68,15 @@
     }
 
     h1 {
+      font-family: "Cormorant Garamond", serif;
       font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    h2,
+    h3 {
+      font-family: "Libre Baskerville", serif;
     }
 
     p {
@@ -95,7 +101,7 @@
     .field,
     .section-card {
       padding: 16px;
-      background: #fffdf9;
+      background: var(--panel);
     }
 
     .field {
@@ -191,7 +197,9 @@
 
     th {
       text-align: left;
-      background: #f9f1e5;
+      background: var(--panel-soft);
+      font-family: "Inter", sans-serif;
+      font-weight: 600;
       font-size: 0.95rem;
     }
 
@@ -209,7 +217,7 @@
       padding: 12px 14px;
       border: 1px solid var(--line);
       border-radius: 12px;
-      background: #f9f1e5;
+      background: var(--panel-soft);
     }
 
     .recommended-note strong {
@@ -277,6 +285,8 @@
       padding: 12px 20px;
       background: var(--panel-soft);
       color: var(--text);
+      font-family: "Inter", sans-serif;
+      font-weight: 500;
     }
 
     @media (max-width: 760px) {
@@ -597,10 +607,60 @@
     </section>
   </main>
   <script>
+    const STORAGE_KEY = "pivot-annual-review-workspace";
     const recommendationButton = document.getElementById("generate-recommendation-btn");
     const recommendationText = document.getElementById("recommended-direction-text");
     const annualResetButton = document.getElementById("nav-reset-btn");
     const annualArchiveButton = document.getElementById("archive-btn");
+
+    function saveWorkspaceState() {
+      try {
+        const state = {
+          fields: {},
+          recommendationHtml: recommendationText.innerHTML
+        };
+
+        document.querySelectorAll("input, select, textarea").forEach((field) => {
+          const key = field.id || field.getAttribute("aria-label");
+          if (!key) return;
+          state.fields[key] = field.type === "checkbox" ? field.checked : field.value;
+        });
+
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (error) {
+        console.error("Unable to save annual review workspace state.", error);
+      }
+    }
+
+    function restoreWorkspaceState() {
+      try {
+        const rawState = window.localStorage.getItem(STORAGE_KEY);
+        if (!rawState) return;
+
+        const state = JSON.parse(rawState);
+        Object.entries(state.fields || {}).forEach(([key, value]) => {
+          let field = document.getElementById(key);
+          if (!field) {
+            field = Array.from(document.querySelectorAll("[aria-label]")).find((candidate) => {
+              return candidate.getAttribute("aria-label") === key;
+            });
+          }
+          if (!field) return;
+
+          if (field.type === "checkbox") {
+            field.checked = Boolean(value);
+          } else {
+            field.value = value;
+          }
+        });
+
+        if (state.recommendationHtml) {
+          recommendationText.innerHTML = state.recommendationHtml;
+        }
+      } catch (error) {
+        console.error("Unable to restore annual review workspace state.", error);
+      }
+    }
 
     function valueOf(id) {
       const element = document.getElementById(id);
@@ -755,9 +815,16 @@
         </div>
         <p class="sub-note">${explanation}</p>
       `;
+      saveWorkspaceState();
     }
 
     function resetAnnualWorkspace() {
+      try {
+        window.localStorage.removeItem(STORAGE_KEY);
+      } catch (error) {
+        console.error("Unable to clear annual review workspace state.", error);
+      }
+
       document.querySelectorAll("input, select, textarea").forEach((field) => {
         if (field.type === "checkbox") {
           field.checked = false;
@@ -771,9 +838,15 @@
       recommendationText.innerHTML = "Choose the direction that matches the biggest pressure point from this year.";
     }
 
+    document.querySelectorAll("input, select, textarea").forEach((field) => {
+      field.addEventListener("input", saveWorkspaceState);
+      field.addEventListener("change", saveWorkspaceState);
+    });
+
     recommendationButton.addEventListener("click", generateRecommendation);
     annualArchiveButton.addEventListener("click", () => window.print());
     annualResetButton.addEventListener("click", resetAnnualWorkspace);
+    restoreWorkspaceState();
   </script>
 </body>
 </html>
