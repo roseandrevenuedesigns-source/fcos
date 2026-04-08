@@ -450,6 +450,34 @@
       font-size: 0.95rem;
     }
 
+    .funding-helper {
+      margin-top: 16px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+    }
+
+    .funding-helper h4 {
+      margin: 0 0 8px;
+      font-family: "Libre Baskerville", serif;
+      font-size: 0.98rem;
+      color: var(--text);
+    }
+
+    .funding-helper strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1.15rem;
+      color: var(--accent);
+    }
+
+    .funding-helper p {
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.55;
+    }
+
     .workspace-nav {
       margin-top: 24px;
       padding-top: 18px;
@@ -582,6 +610,13 @@
       <p class="note">
         Enter only the portion of this paycheck being deposited into the bill account for this cycle.
       </p>
+      <section class="funding-helper" aria-live="polite">
+        <h4>Current Bill Account Funding Logged This Month</h4>
+        <strong id="income-bill-funding-total">$0.00</strong>
+        <p>
+          Bill account funding can be pulled from Monthly Income Snapshot and adjusted manually here if needed.
+        </p>
+      </section>
 
       <div class="table-wrap">
         <table>
@@ -717,7 +752,7 @@
       <section class="workspace-nav" aria-label="Workspace Navigation">
         <h3>Workspace Navigation</h3>
         <div class="nav-links">
-          <a class="nav-button" href="household-stability-checklist.html">Back</a>
+          <a class="nav-button" href="monthly-income-snapshot.html">Back</a>
           <a class="nav-button" href="monthly-credit-snapshot.html">Next</a>
           <a class="nav-button" href="index.html">Return to FCOS Home</a>
           <button type="button" class="secondary" id="archive-btn">Save This Month for Records</button>
@@ -795,6 +830,7 @@
 
   <script>
     const STORAGE_KEY = "pivot-monthly-bill-map-workspace";
+    const INCOME_SNAPSHOT_STORAGE_KEY = "pivot-monthly-income-snapshot-workspace";
     let suppressAutoSave = false;
     let checklistState = {};
     const rowsBody = document.getElementById("bill-rows");
@@ -815,6 +851,7 @@
     const mappedMonthSelect = document.getElementById("mappedMonthSelect");
     const mappedYearSelect = document.getElementById("mappedYearSelect");
     const calendarDebug = document.getElementById("calendar-debug");
+    const incomeBillFundingTotal = document.getElementById("income-bill-funding-total");
     const paycheckTargets = {
       "Check 1": {
         interpretation: document.getElementById("check1-interpretation"),
@@ -829,6 +866,49 @@
         items: document.getElementById("check3-items")
       }
     };
+
+    function getImportedBillAccountFundingTotal() {
+      try {
+        const rawState = window.localStorage.getItem(INCOME_SNAPSHOT_STORAGE_KEY);
+        if (!rawState) return 0;
+
+        const state = JSON.parse(rawState);
+        if (!Array.isArray(state.depositRows)) return 0;
+
+        return state.depositRows.reduce((total, row) => {
+          if (row.billAccountAllocation !== undefined) {
+            return total + parseMoney(row.billAccountAllocation);
+          }
+
+          if (row.destinationAccount === "Bill account") {
+            return total + parseMoney(row.amount);
+          }
+
+          return total;
+        }, 0);
+      } catch (error) {
+        console.error("Unable to read Monthly Income Snapshot funding.", error);
+        return 0;
+      }
+    }
+
+    function updateImportedFundingHelper() {
+      incomeBillFundingTotal.textContent = formatMoney(getImportedBillAccountFundingTotal());
+    }
+
+    function maybePrefillFirstPaycheckStartingBalance(row, data = {}) {
+      const isFirstPaycheckRow = paycheckRowsBody.children.length === 0;
+      if (!isFirstPaycheckRow) return;
+      if (data.startingBalance !== undefined && data.startingBalance !== null && String(data.startingBalance).trim() !== "") return;
+
+      const importedFundingTotal = getImportedBillAccountFundingTotal();
+      if (importedFundingTotal <= 0) return;
+
+      const startingBalanceField = row.querySelector('[data-paycheck-field="startingBalance"]');
+      if (!startingBalanceField || startingBalanceField.value.trim() !== "") return;
+
+      startingBalanceField.value = String(importedFundingTotal);
+    }
 
     function saveWorkspaceState() {
       if (suppressAutoSave) return;
@@ -907,6 +987,8 @@
     function addPaycheckRow(data = {}) {
       const fragment = paycheckRowTemplate.content.cloneNode(true);
       const row = fragment.querySelector("tr");
+
+      maybePrefillFirstPaycheckStartingBalance(row, data);
 
       row.querySelectorAll("[data-paycheck-field]").forEach((field) => {
         const key = field.dataset.paycheckField;
@@ -1514,12 +1596,18 @@
     document.getElementById("reset-btn").addEventListener("click", resetAll);
     document.getElementById("archive-btn").addEventListener("click", () => window.print());
     document.getElementById("nav-reset-btn").addEventListener("click", resetAll);
+    window.addEventListener("storage", (event) => {
+      if (event.key === INCOME_SNAPSHOT_STORAGE_KEY) {
+        updateImportedFundingHelper();
+      }
+    });
 
     if (!restoreWorkspaceState()) {
       addPaycheckRow();
       addRow();
       addRow();
     }
+    updateImportedFundingHelper();
   </script>
 </body>
 </html>
