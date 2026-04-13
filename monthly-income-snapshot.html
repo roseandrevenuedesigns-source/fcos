@@ -270,6 +270,17 @@
       border: 1px solid var(--line);
     }
 
+    .corner-stamp {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      width: 64px;
+      opacity: 0.35;
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
+
     @media (max-width: 900px) {
       .totals-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -313,6 +324,10 @@
 
       .actions,
       .workspace-nav {
+        display: none;
+      }
+
+      .corner-stamp {
         display: none;
       }
     }
@@ -689,5 +704,6 @@
       updateTotals();
     }
   </script>
+  <img class="corner-stamp" src="pivot-logo.png" alt="">
 </body>
 </html>

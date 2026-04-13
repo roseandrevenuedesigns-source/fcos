@@ -309,6 +309,17 @@
       color: var(--text);
     }
 
+    .corner-stamp {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      width: 64px;
+      opacity: 0.35;
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
+
     @media (max-width: 760px) {
       .wrap {
         width: min(100% - 20px, 960px);
@@ -324,6 +335,12 @@
 
       .summary-grid {
         grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      .corner-stamp {
+        display: none;
       }
     }
   </style>
@@ -862,5 +879,6 @@
     renderQuestions();
     restoreWorkspaceState();
   </script>
+  <img class="corner-stamp" src="pivot-logo.png" alt="">
 </body>
 </html>
