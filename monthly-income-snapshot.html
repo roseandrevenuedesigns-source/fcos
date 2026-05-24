@@ -615,7 +615,7 @@
 
     function parseMoney(value) {
       const number = Number(value || 0);
-      return Number.isFinite(number) ? number : 0;
+      return Number.isFinite(number) ? Math.round((number + Number.EPSILON) * 100) / 100 : 0;
     }
 
     function getWorkspaceKey(monthValue, yearValue) {
@@ -793,6 +793,7 @@
     function getAllocationStatus(row) {
       const totalDepositAmount = parseMoney(row.totalDepositAmount);
       const allocationTotal = getAllocationTotal(row);
+      const allocationDifference = Math.abs(allocationTotal - totalDepositAmount);
 
       if (totalDepositAmount <= 0) {
         return {
@@ -808,7 +809,7 @@
         };
       }
 
-      if (allocationTotal === totalDepositAmount) {
+      if (allocationDifference < 0.01) {
         return {
           label: "Fully allocated",
           className: "is-full"

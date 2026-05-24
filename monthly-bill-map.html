@@ -761,6 +761,9 @@
       </div>
 
       <h3 class="subsection-title">Monthly Bill Map</h3>
+      <p class="note">
+        Interim workflow note: if one bill is split across multiple payments, add a second line with the same bill name and enter only the additional portion on that duplicate line. If a bill due early this month was already covered by the final check of last month, keep it in this month's map for visibility and note that it was paid from the prior cycle so it stays visible without changing this month's live balances.
+      </p>
 
       <div class="table-wrap">
         <table>
@@ -1570,10 +1573,12 @@
           billRows: Array.isArray(previousWorkspace.billRows)
             ? previousWorkspace.billRows.map((row) => createCarriedBillRow(row))
             : [],
-          paycheckRows: Array.isArray(previousWorkspace.paycheckRows)
-            ? previousWorkspace.paycheckRows.map((row) => createCarriedPaycheckRow(row))
-            : [],
-          checklistState: {}
+          paycheckRows: currentPaycheckRows.length > 0
+            ? currentPaycheckRows
+            : Array.isArray(previousWorkspace.paycheckRows)
+              ? previousWorkspace.paycheckRows.map((row) => createCarriedPaycheckRow(row))
+              : [],
+          checklistState: currentRows.length > 0 || currentPaycheckRows.length > 0 ? checklistState : {}
         };
 
         writeStorageRoot(rootState);
@@ -1676,7 +1681,7 @@
 
     function parseMoney(value) {
       const number = Number(value || 0);
-      return Number.isFinite(number) ? number : 0;
+      return Number.isFinite(number) ? Math.round((number + Number.EPSILON) * 100) / 100 : 0;
     }
 
     function determineCoverageStatus(remainingBalance) {
